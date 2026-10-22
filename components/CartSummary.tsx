@@ -1,8 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { selectCartCount, selectCartTotal, useCartStore } from '../stores/cartStore';
+import { selectCartCount, useCartStore } from '../stores/cartStore';
 
 export default function CartSummary() {
-  const total = useCartStore(selectCartTotal);
   const count = useCartStore(selectCartCount);
 
   return (
@@ -13,7 +12,7 @@ export default function CartSummary() {
       </View>
       <View style={styles.row}>
         <Text style={styles.totalLabel}>Итого</Text>
-        <Text style={styles.totalValue}>{total} ₽</Text>
+        <Text style={styles.totalValue}>{count} товаров</Text>
       </View>
     </View>
   );

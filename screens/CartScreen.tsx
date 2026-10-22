@@ -25,13 +25,12 @@ export default function CartScreen() {
 
   const handleBuy = () => {
     // Читаем актуальное состояние из стора вне React — фишка Zustand
-    const total = useCartStore.getState().lines;
-    const count = Object.values(total).reduce((s, l) => s + l.quantity, 0);
+    const current = useCartStore.getState().lines;
+    const count = Object.values(current).reduce((s, l) => s + l.quantity, 0);
 
     Alert.alert(
       'Спасибо за покупку! 🎉',
-      `Вы заказали ${count} тов. на сумму ${Object.values(total)
-        .reduce((s, l) => s + l.product.price * l.quantity, 0)} ₽.`,
+      `Вы заказали ${count} товаров`,
       [
         {
           text: 'OK',

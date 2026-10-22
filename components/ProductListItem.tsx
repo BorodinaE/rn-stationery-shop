@@ -1,6 +1,7 @@
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import {Alert, Image, Pressable, StyleSheet, Text, View} from 'react-native';
 import { Product } from '../types/product';
 import { useCartStore } from '../stores/cartStore';
+import {useShallow} from "zustand/react/shallow";
 
 interface Props {
   product: Product;
@@ -9,28 +10,69 @@ interface Props {
 
 export default function ProductListItem({ product, onPress }: Props) {
   const add = useCartStore((s) => s.add);
+  const decrement  = useCartStore((s) => s.decrement);
+
+  const inCart = useCartStore(
+    useShallow((s) => s.lines[product.id]?.quantity ?? 0),
+  );
+
+  const atMax = inCart >= product.stock;
+
+  const handleAdd = () => {
+    if (atMax) {
+      Alert.alert(
+        'Нельзя добавить больше',
+        `На складе доступно только ${product.stock} шт. «${product.name}».`,
+      );
+      return;
+    }
+    add(product);
+  };
+
+  const handleDecrement  = () => {
+    decrement (product.id);
+  };
 
   return (
     <Pressable style={styles.card} onPress={onPress}>
-      <Image source={{ uri: product.image_url }} style={styles.image} />
+
       <View style={styles.info}>
-        <Text style={styles.brand}>{product.brand}</Text>
+        <Text style={styles.brand}>{product.manufacturer}</Text>
         <Text style={styles.name} numberOfLines={2}>
           {product.name}
         </Text>
-        <Text style={styles.price}>{product.price} ₽</Text>
+        <Text style={styles.price}>На складе: {product.stock} </Text>
       </View>
 
-      {/* stopPropagation: чтобы тап по кнопке не открывал экран товара */}
-      <Pressable
-        style={styles.addBtn}
-        onPress={(e) => {
-          e.stopPropagation();
-          add(product);
-        }}
-      >
-        <Text style={styles.addBtnText}>+</Text>
-      </Pressable>
+      <View style={styles.right}>
+        {inCart > 0 && (
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>{inCart}</Text>
+          </View>
+        )}
+
+          {/* stopPropagation: чтобы тап по кнопке не открывал экран товара */}
+          <Pressable
+            style={styles.addBtn}
+            onPress={(e) => {
+              e.stopPropagation();
+              handleAdd();
+            }}
+          >
+            <Text style={styles.addBtnText}>+</Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.addBtn}
+            onPress={(e) => {
+              e.stopPropagation();
+              handleDecrement();
+            }}
+          >
+            <Text style={styles.addBtnText}>-</Text>
+          </Pressable>
+
+      </View>
     </Pressable>
   );
 }
@@ -64,4 +106,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   addBtnText: { color: '#fff', fontSize: 22, lineHeight: 24, fontWeight: '700' },
+  right: { alignItems: 'center', gap: 6 },
+  badge: {
+    minWidth: 22,
+    height: 22,
+    paddingHorizontal: 6,
+    borderRadius: 11,
+    backgroundColor: '#e53935',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badgeText: { color: '#fff', fontSize: 12, fontWeight: '700' },
 });

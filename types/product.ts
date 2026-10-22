@@ -1,12 +1,15 @@
 export interface Product {
     id: string;
     name: string;
+    latin_name: string;
+    active_substance: string;
     category: string;
-    brand: string;
-    price: number;
-    stock: number;
+    form: string;
+    dosage: string;
+    manufacturer: string;
+    prescription_required: boolean;
     description: string;
-    image_url: string;
+    stock: number;
   }
   
   // Строка корзины: сам товар + количество

@@ -18,15 +18,17 @@ export const useCartStore = create<CartState>((set) => ({
   add: (product, quantity = 1) =>
     set((state) => {
       const existing = state.lines[product.id];
+      const current = existing?.quantity ?? 0;
+      const next = Math.min(current + quantity, product.stock);
+      if (next <= 0) return state;
       return {
         lines: {
           ...state.lines,
-          [product.id]: existing
-            ? { ...existing, quantity: existing.quantity + quantity }
-            : { product, quantity },
+          [product.id]: { product, quantity: next },
         },
       };
     }),
+
 
   remove: (productId) =>
     set((state) => {
@@ -69,12 +71,6 @@ export const useCartStore = create<CartState>((set) => ({
 // ---------- Селекторы ----------
 export const selectCartCount = (s: CartState): number =>
   Object.values(s.lines).reduce((sum, line) => sum + line.quantity, 0);
-
-export const selectCartTotal = (s: CartState): number =>
-  Object.values(s.lines).reduce(
-    (sum, line) => sum + line.product.price * line.quantity,
-    0,
-  );
 
 export const selectCartLines = (s: CartState): CartLine[] =>
   Object.values(s.lines);

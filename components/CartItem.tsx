@@ -1,33 +1,40 @@
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { CartLine } from '../types/product';
 import { useCartStore } from '../stores/cartStore';
-import { useState } from 'react';
 
 export default function CartItem({ line }: { line: CartLine }) {
-  const [qty, setQty] = useState<number>(line.quantity);
+  const increment = useCartStore((s) => s.increment);
+  const decrement = useCartStore((s) => s.decrement);
   const remove = useCartStore((s) => s.remove);
 
-  const sum = line.product.price * qty;
+  const atMax = line.quantity >= line.product.stock;
+
 
   return (
     <View style={styles.row}>
-      <Image source={{ uri: line.product.image_url }} style={styles.image} />
       <View style={styles.info}>
         <Text style={styles.name} numberOfLines={2}>
           {line.product.name}
         </Text>
-        <Text style={styles.price}>
-          {line.product.price} ₽ × {qty} = {sum} ₽
+        <Text style={styles.meta}>
+          {line.product.form} · {line.product.dosage}
         </Text>
 
         <View style={styles.controls}>
-          <Pressable style={styles.qtyBtn} onPress={() => setQty(qty - 1)}>
+          <Pressable style={styles.qtyBtn} onPress={() => decrement(line.product.id)}>
             <Text style={styles.qtyText}>−</Text>
           </Pressable>
-          <Text style={styles.qty}>{qty}</Text>
-          <Pressable style={styles.qtyBtn} onPress={() => setQty(qty + 1)}>
+
+          <Text style={styles.qty}>{line.quantity}</Text>
+
+          <Pressable style={styles.qtyBtn} disabled={atMax} onPress={() => increment(line.product.id)}>
             <Text style={styles.qtyText}>+</Text>
           </Pressable>
+
+          {atMax && (
+            <Text style={styles.maxHint}>макс. {line.product.stock}</Text>
+          )}
+
           <Pressable onPress={() => remove(line.product.id)} style={styles.remove}>
             <Text style={styles.removeText}>Удалить</Text>
           </Pressable>
@@ -63,4 +70,6 @@ const styles = StyleSheet.create({
   qty: { fontSize: 16, fontWeight: '700', minWidth: 24, textAlign: 'center' },
   remove: { marginLeft: 'auto' },
   removeText: { color: '#e53935', fontSize: 13 },
+  meta: { fontSize: 12, color: '#888', marginBottom: 8 },
+  maxHint: { fontSize: 11, color: '#e53935' },
 });
