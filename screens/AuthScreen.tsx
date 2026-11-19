@@ -3,7 +3,7 @@ import { View, Text, Pressable, StyleSheet, ActivityIndicator, Alert } from 'rea
 import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri, useAuthRequest, ResponseType } from 'expo-auth-session';
 import { usePreventScreenCapture } from 'expo-screen-capture';
-import { useAuthStore } from '../stores/authStore';
+import { useAuth } from '../auth/AuthContext';
 import { Credentials } from '../types/common';
 import { PasswordInput } from '../components/PasswordInput';
 import { SimpleInput } from '../components/SimpleInput';
@@ -21,7 +21,7 @@ const GITHUB_CLIENT_ID = process.env.EXPO_PUBLIC_GITHUB_CLIENT_ID ?? '';
 export default function AuthScreen() {
   usePreventScreenCapture();
 
-  const signIn = useAuthStore((s) => s.signIn);
+  const { signIn } = useAuth();
   const redirectUri = makeRedirectUri({ scheme: 'stationeryshop', path: 'auth' });
   const [credentials, setCredentials] = useState<Credentials | null>(null);
   const handleLoginWithCredentials = () => {
